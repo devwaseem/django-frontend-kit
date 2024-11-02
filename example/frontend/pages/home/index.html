@@ -1,0 +1,8 @@
+{% extends "layouts/default/index.html" %}
+{% block body %}
+    <div x-data="home" class="flex flex-col gap-6">
+        <div x-show="revealed">Can you see me?</div>
+        <button @click="revealed=!revealed" x-text="revealed ? 'hide': 'show' "></button>
+        <button @click="showAlert">Show Alert</button>
+    </div>
+{% endblock body %}
