@@ -1,77 +1,158 @@
 # Django Frontend Kit
 
-**Django Frontend Kit** is an opinionated frontend scaffolder for Django that integrates seamlessly with ViteJS, offering a streamlined setup for modern frontend tooling within your Django projects.
+![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
+![Django](https://img.shields.io/badge/django-%23092E20.svg?style=for-the-badge&logo=django&logoColor=white)
+![Vite](https://img.shields.io/badge/vite-%23646CFF.svg?style=for-the-badge&logo=vite&logoColor=white)
+
+**Django Frontend Kit** is an opinionated frontend scaffolder for Django, integrating seamlessly with ViteJS. It provides a streamlined setup for modern frontend tooling within your Django projects, enabling efficient development and production workflows.
 
 ---
 
-## Installation
+## 🚀 Features
 
-Via pip into a virtualenv:
+- 📦 **Seamless ViteJS Integration** – Enables modern frontend tooling in Django.
+- ⚡ **Zero Config Development** – Uses Vite’s dev server automatically during development.
+- 🔧 **Production-Ready Setup** – Manages static assets via Django’s `collectstatic` mechanism.
+- 🛠 **Easy Scaffolding** – One command to generate the required frontend structure.
 
+---
+
+## 📥 Installation
+
+You can install `django-frontend-kit` using your preferred package manager:
+
+### Using `uv`
+```bash
+uv add django-frontend-kit
+```
+
+### Using `Poetry`
+```bash
+poetry add django-frontend-kit
+```
+
+### Using `pip`
 ```bash
 pip install django-frontend-kit
 ```
 
-In settings.py add the following:
+---
 
-Add `frontend_kit` to `INSTALLED_APPS`:
+## 🔧 Configuration
+
+### 1️⃣ Add to Installed Apps
+
+In your `settings.py`, add `django-frontend-kit` to `INSTALLED_APPS`:
 
 ```python
 INSTALLED_APPS = [
     ...
     "frontend_kit",
+    ...
 ]
 ```
 
-frontend_kit will look for a `frontend` directory in the setting `DJFK_FRONTEND_DIR`.
-It is recommend to put the `frontend` directory in the root of your project.
+### 2️⃣ Define Frontend Directory
+
+By default, `django-frontend-kit` looks for a `frontend` directory specified by `DJFK_FRONTEND_DIR`. It is recommended to place it in the root of your project:
 
 ```python
-
 DJFK_FRONTEND_DIR = BASE_DIR / "frontend"
-
-TEMPLATES = [
-        {
-            ...
-            "DIRS": [DJFK_FRONTEND_DIR],
-            ...
-        }
-]
-
 ```
 
-By default, frontend_kit will use vite's dev server for development, and 
-will use built assets for production using the generated manifest.json from vite.
+### Templating support
+For Django template engine to find the frontend files, add `DJFK_FRONTEND_DIR` to TEMPLATES DIRS in `settings.py`:
 
-Set dev server url:
+```python
+TEMPLATES = [
+    {
+        ...
+        "DIRS": [
+            ...
+            DJFK_FRONTEND_DIR
+            ...
+        ],
+        ...
+    }
+]
+```
+
+### 3️⃣ Configure Vite Integration
+
+During development, `django-frontend-kit` will use Vite's dev server. Set the dev server URL:
 
 ```python
 VITE_DEV_SERVER_URL = "http://localhost:5173/"
 ```
 
-In production, we need to build the frontend assets, so set the output dir and
-add the same to `STATICFILES_DIRS` so django can collect staticfiles:
-
+To collect staticfiles built by Vite, add the `VITE_OUTPUT_DIR` to `STATICFILES_DIRS` in `settings.py`:
 
 ```python
-DJFK_VITE_OUTPUT_DIR = os.environ.get("VITE_OUTPUT_DIR", "./dist")
-STATICFILES_DIRS = [DJFK_VITE_OUTPUT_DIR]
+VITE_OUTPUT_DIR = os.environ.get("VITE_OUTPUT_DIR", "./dist")
+STATICFILES_DIRS = [VITE_OUTPUT_DIR]
 ```
 
+---
 
-Finally, run the following command to setup the frontend_kit dirs and required files:
+## ⚡ Quick Start
+
+### 1️⃣ Frontend Setup
+
+Run the following command to create the required frontend structure:
 
 ```bash
 python manage.py scaffold
 ```
 
-This will create frontend directory, vite config in the `BASE_DIR`
+This will generate the `frontend` directory and Vite configuration in `BASE_DIR`.
 
-Run the following command to install necessary packages:
+### 2️⃣ Initialize the Frontend Project
+
+Create a `package.json` file:
 
 ```bash
-npm install
+npm init -y
 ```
 
-That's it, you are ready to go!
+Install the necessary dependencies:
 
+```bash
+npm install vite @iamwaseem99/vite-plugin-django-frontend-kit
+```
+
+### Start Development Server
+
+To start the development server, run:
+
+```bash
+npm run dev 
+```
+
+### Build for Production
+
+To generate production-ready frontend assets, run:
+
+```bash
+npm run build
+```
+
+and run the following command to collect static files:
+
+```bash
+python manage.py collectstatic  
+```
+
+---
+
+## TODO:
+
+### README
+
+- [] Add philosophy.
+- [] Explain the project structure.
+- [] Add how to add and use layouts, pages, shared files.
+- [] Add how to use third party libraries like tailwind, react, alpine, etc.
+
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
