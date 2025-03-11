@@ -1,39 +1,43 @@
-[tool.poetry]
+[project]
 name = "django-frontend-example"
 version = "0.1.0"
 description = ""
-authors = ["Waseem Akram <waseem07799@gmail.com>"]
+authors = [{ name = "Waseem Akram", email = "waseem07799@gmail.com" }]
+requires-python = "==3.13.0"
 readme = "README.md"
+dependencies = ["Django>=5.1.2,<6", "django-frontend-kit"]
 
-[tool.poetry.dependencies]
-python = "3.13.0"
-Django = "^5.1.2"
-django-frontend = { path = "..", develop = true }
+[tool.uv.sources]
+django-frontend-kit = { path = "../" }
 
-
-[tool.poetry.group.dev.dependencies]
-djlint = "^1.35.4"
-mypy = "^1.13.0"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+[dependency-groups]
+dev = ["djlint>=1.35.4,<2", "mypy>=1.13.0,<2"]
 
 [tool.pyright]
 exclude = [".venv"]
 venvPath = "."
 venv = ".venv"
 
-[tool.djlint]
-custom_html = "mjml,mj-head,mj-\\w+,c-\\w+,c-\\w{\\.\\w+}*"
+[tool.basedpyright]
+include = ["app"]
+venvPath = "./.venv"
+pythonVersion = "3.13.1"
+pythonPlatform = "Linux"
+typeCheckingMode = "off"
 
+reportMissingTypeStubs = false
+reportIncompatibleVariableOverride = false
+reportUnusedParameter = false
+
+[tool.djlint]
+custom_html = "mjml,mj-head,mj-\\w+"
 
 [tool.mypy]
 
 # https://mypy.readthedocs.io/en/stable/config_file.html
 
-python_version = "3.13.0"
-mypy_path = "./example"
+python_version = "3.13.1"
+mypy_path = "."
 
 
 plugins = ["mypy_django_plugin.main", "mypy_drf_plugin.main"]
@@ -45,7 +49,7 @@ disable_error_code = ['import-untyped']
 
 allow_redefinition = false
 check_untyped_defs = true
-disallow_any_explicit = false
+disallow_any_explicit = true
 disallow_any_generics = true
 disallow_any_unimported = false
 disallow_incomplete_defs = true
@@ -83,7 +87,6 @@ django_settings_module = "app.settings"
 module = "*.migrations.*"
 # Django migrations should not produce any errors:
 ignore_errors = true
-
 
 [tool.ruff]
 
@@ -124,43 +127,50 @@ exclude = [
 ]
 
 extend-select = [
-    "A",     # flake8-builtins
-    "ANN",   # flake8-annotations
-    "ARG",   # flake8-unused-arguments (ARG)
-    "ASYNC", # flake8-async (ASYNC)
-    "B",     # flake8-bugbear
-    "BLE",   # flake8-blind-except
-    "C4",    # flake8-comprehensions (C4)
-    "C90",   # mccabe (C90)
-    "DJ",    # flake8-django
-    "DTZ",   # flake8-datetimez (DTZ)
-    "E",     # pycodestyle Error
-    "ERA",   # eradicate (ERA)
-    "F",     # Pyflakes
-    "FBT",   # flake8-boolean-trap (FBT)
-    "FIX",   # flake8-fixme (FIX)
-    "FURB",  # refurb (FURB)
-    "G",     # flake8-logging-format
-    "I",     # isort
-    "ICN",   # flake8-import-conventions
-    "LOG",   # flake8-logging (LOG)
-    "N",     # pep8-naming
-    "PERF",  # Perflint (PERF)
-    "PIE",   # flake8-pie
-    "PTH",   # flake8-use-pathlib (PTH)
-    "PYI",   # flake8-pyi
-    "Q",     # flake8-quotes
-    "RET",   # flake8-return (RET)
-    "RSE",   # flake8-raise (RSE)
-    "RUF",   # Ruff-specific rules (RUF)
-    "SIM",   # flake8-simplify
-    "SLF",   # flake8-self (SLF)
-    "T10",   # flake8-debugger (T10)
-    "T20",   # flake8-print
+    "A", # flake8-builtins
+    # flake8-annotations - https://docs.astral.sh/ruff/rules/#flake8-annotations-ann
+    "ANN001",
+    "ANN002",
+    "ANN003",
+    "ANN201",
+    "ANN202",
+    "ANN204",
+    "ANN205",
+    "ANN206",
+    "ARG",    # flake8-unused-arguments (ARG)
+    "ASYNC",  # flake8-async (ASYNC)
+    "B",      # flake8-bugbear
+    "BLE",    # flake8-blind-except
+    "C4",     # flake8-comprehensions (C4)
+    "C90",    # mccabe (C90)
+    "DJ",     # flake8-django
+    "DTZ",    # flake8-datetimez (DTZ)
+    "E",      # pycodestyle Error
+    "ERA",    # eradicate (ERA)
+    "F",      # Pyflakes
+    "FBT",    # flake8-boolean-trap (FBT)
+    "FIX",    # flake8-fixme (FIX)
+    "FURB",   # refurb (FURB)
+    "G",      # flake8-logging-format
+    "I",      # isort
+    "ICN",    # flake8-import-conventions
+    "LOG",    # flake8-logging (LOG)
+    "N",      # pep8-naming
+    "PERF",   # Perflint (PERF)
+    "PIE",    # flake8-pie
+    "PTH",    # flake8-use-pathlib (PTH)
+    "PYI",    # flake8-pyi
+    "Q",      # flake8-quotes
+    "RET",    # flake8-return (RET)
+    "RSE",    # flake8-raise (RSE)
+    "RUF",    # Ruff-specific rules (RUF)
+    "SIM",    # flake8-simplify
+    "SLF",    # flake8-self (SLF)
+    "T10",    # flake8-debugger (T10)
+    "T20",    # flake8-print
     # "TD",    # flake8-todos (TD)
     "TID", # flake8-tidy-imports (TID)
     "TRY", # tryceratops (TRY)
-    "TCH", # flake8-type-checking (TCH)
     "W",   # pycodestyle Warning
     # "D",     # pydocstyle (D)
     "FLY",  # flynt (FLY)
@@ -173,11 +183,7 @@ ignore = [
     "D212",   # multi-line-summary-first-line
     "RUF012", # mutable-class-default
     "TRY003", # raise-vanilla-args
-    "ANN101", # missing-type-self
     'A003',   # builtin-attribute-shadowing
-    "ANN401", # any-type
-
-
 ]
 
 line-length = 79
@@ -210,7 +216,7 @@ line-ending = "auto"
 
 [tool.ruff.lint.isort]
 known-first-party = ["app"]
-#
+
 [tool.ruff.lint.per-file-ignores]
 "**/admin/*" = [
     "RUF012", # mutable-class-default
@@ -257,7 +263,6 @@ TEST = true
 LOG_DB = false
 DEBUG = false
 
-
 [tool.coverage.run]
 branch = true
 disable_warnings = ["no-data-collected"]
@@ -271,7 +276,6 @@ omit = [
     './app/wsgi.py',
     './app/asgi.py',
 ]
-
 
 [tool.coverage.report]
 exclude_also = [
