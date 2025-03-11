@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Any, Generator, Hashable, NamedTuple, Self, cast
 
 from django.core.cache import cache
-import orjson
+import json
 from django.conf import settings
 from django.templatetags.static import static
 
@@ -114,7 +114,7 @@ class ViteAssetResolver:
 def get_vite_manifest() -> dict[str, ManifestEntry]:
     entries: dict[str, ManifestEntry] = {}
     manifest_content = _get_manifest_data()
-    manifest: dict[str, Any] = orjson.loads(manifest_content)
+    manifest: dict[str, Any] = json.loads(manifest_content)
     for file, entry in manifest.items():
         entries[file] = ManifestEntry(
             name=entry["name"],
