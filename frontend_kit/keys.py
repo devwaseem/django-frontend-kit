@@ -1,0 +1,1 @@
+CACHE_KEY_VITE_MANIFEST = "fk:vite_manifest"

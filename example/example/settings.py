@@ -55,7 +55,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "example.urls"
 
-DJFK_VITE_OUTPUT_DIR = os.environ.get("VITE_OUTPUT_DIR", "./dist")
+VITE_OUTPUT_DIR = os.environ.get("VITE_OUTPUT_DIR", "./dist")
 DJFK_FRONTEND_DIR = BASE_DIR / "frontend"
 
 TEMPLATES = [
@@ -125,7 +125,11 @@ USE_TZ = True
 STATIC_URL = "static/"
 VITE_DEV_SERVER_URL = "http://localhost:5173/"
 
-STATICFILES_DIRS = [DJFK_VITE_OUTPUT_DIR]
+
+STATIC_ROOT = "static"
+STATICFILES_DIRS = [
+    VITE_OUTPUT_DIR
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

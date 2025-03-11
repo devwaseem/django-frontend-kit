@@ -1,0 +1,30 @@
+{
+  "name": "@iamwaseem99/vite-plugin-django-frontend-kit",
+  "version": "1.0.3",
+  "author": "Waseem Akram <waseem07799@gmail.com>",
+  "license": "MIT",
+  "description": "A Vite plugin to generate rollup input for django frontend kit",
+  "keywords": [
+    "django_frontend_kit",
+    "django",
+    "frontend kit",
+    "django frontend",
+    "django-vite"
+  ],
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "exports": {
+    "import": "./dist/index.mjs",
+    "require": "./dist/index.cjs"
+  },
+  "scripts": {
+    "build": "tsup src/index.js --format esm,cjs"
+  },
+  "dependencies": {
+    "glob": "^11.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.10",
+    "tsup": "^8.4.0"
+  }
+}

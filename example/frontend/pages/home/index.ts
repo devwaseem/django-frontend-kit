@@ -1,18 +1,19 @@
 import "@shared/main";
 import "./index.css";
 
-import Alpine, { AlpineComponent } from "alpinejs";
+import Alpine from "alpinejs";
 
-interface HomeComponent extends AlpineComponent {
-  showAlert(): void;
+interface HomeComponent {
+  index: number;
+  increment(): void;
 }
 
 Alpine.data(
-  "home",
+  "HomeComponent",
   (): HomeComponent => ({
-    revealed: false,
-    showAlert() {
-      alert("Hello World");
-    },
+    index: 0,
+    increment() {
+      this.index++;
+    }
   }),
 );

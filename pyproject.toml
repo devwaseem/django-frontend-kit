@@ -30,6 +30,8 @@ tenacity = "^9.0.0"
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.13.0"
 django-stubs = "^5.1.1"
+ruff = "^0.9.10"
+djlint = "^1.36.4"
 
 [build-system]
 requires = ["poetry-core"]

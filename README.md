@@ -4,7 +4,6 @@
 
 ---
 
-
 ## Installation
 
 Via pip into a virtualenv:

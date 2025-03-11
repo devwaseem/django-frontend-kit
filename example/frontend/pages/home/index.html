@@ -1,8 +1,18 @@
 {% extends "layouts/default/index.html" %}
+{% load fk_tags %}
 {% block body %}
-    <div x-data="home" class="flex flex-col gap-6">
-        <div x-show="revealed">Can you see me?</div>
-        <button @click="revealed=!revealed" x-text="revealed ? 'hide': 'show' "></button>
-        <button @click="showAlert">Show Alert</button>
+    <div class="p-6 flex flex-col gap-6">
+        <div x-data="HomeComponent"
+             class="p-6 bg-gray-50 border border-gray-200 rounded-lg flex flex-col gap-4">
+            <div>This is rendered using Django Template, powered with Alpine</div>
+            <div>
+                Current value: <span x-text="index"></span>
+            </div>
+            <button type="button"
+                    @click="increment()"
+                    class="px-2 py-1 bg-black rounded-lg text-white cursor-pointer">Increment</button>
+        </div>
+        <div id="react-body"></div>
+        <div>{% fk_load page.react_imports %}</div>
     </div>
 {% endblock body %}

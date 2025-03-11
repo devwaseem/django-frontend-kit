@@ -1,0 +1,31 @@
+# vite-plugin-django-frontend-kit
+
+A Vite plugin to generate rollup input for django frontend kit
+
+## Installation
+
+```bash
+npm install @iamwaseem99/vite-plugin-django-frontend-kit
+```
+
+## Usage
+
+```js
+import { defineConfig } from "vite";
+import VitePluginDjangoFrontendKit from "vite-plugin-django-frontend-kit";
+
+export default defineConfig({
+  plugins: [
+    VitePluginDjangoFrontendKit(),
+  ],
+});
+```
+
+## Options
+
+```js
+VitePluginDjangoFrontendKit({
+  frontendDirs: ["./frontend"],
+  glob_pattern: "/**/*.{js,ts}",
+});
+```
