@@ -1,5 +1,6 @@
 from django.http import HttpRequest, HttpResponse
 from django.views import View
+
 from frontend.pages.home import HomePage, HomePageProps
 
 
