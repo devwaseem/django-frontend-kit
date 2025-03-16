@@ -1,14 +1,13 @@
+import json
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any, Generator, Hashable, NamedTuple, Self, cast
 
-from django.core.cache import cache
-import json
 from django.conf import settings
+from django.core.cache import cache
 from django.templatetags.static import static
 
 from frontend_kit.keys import CACHE_KEY_VITE_MANIFEST
-
 
 
 class ManifestEntry(NamedTuple):
@@ -23,6 +22,7 @@ class ManifestEntry(NamedTuple):
 
 
 class AssetNotFoundError(Exception): ...
+
 
 class AssetTag(ABC, Hashable):
     src: str
@@ -42,20 +42,25 @@ class AssetTag(ABC, Hashable):
 
     def __str__(self) -> str:
         return self.src
-    
+
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(src={self.src!r})"
+
+
 class ModulePreloadTag(AssetTag):
     def render(self) -> str:
         return f'<link rel="modulepreload" href="{self.src}" />'
 
+
 class ModuleTag(AssetTag):
     def render(self) -> str:
         return f'<script type="module" src="{self.src}"></script>'
-    
+
+
 class StyleSheetTag(AssetTag):
     def render(self) -> str:
         return f'<link rel="stylesheet" href="{self.src}">'
+
 
 class AssetResolver(ABC):
     @abstractmethod
@@ -77,18 +82,22 @@ class ManifestAssetResolver(AssetResolver):
 
     def get_imports(self, file: str) -> Generator[AssetTag, None, None]:
         if file not in self.entries:
-            raise FileNotFoundError(f"File {file} does not exist in manifest, did you build your Vite project?")
+            raise FileNotFoundError(
+                f"File {file} does not exist in manifest, "
+                "did you build your Vite project?"
+            )
         entry = self.entries[file]
         for js_file in entry.import_list:
             yield ModulePreloadTag(src=static(self.entries[js_file].file))
         yield from self.__get_stylesheets(entry=entry)
         yield ModuleTag(src=static(entry.file))
 
-    def __get_stylesheets(self, entry: ManifestEntry) -> Generator[StyleSheetTag, None, None]:
-        stylesheets_html: list[StyleSheetTag] = []
+    def __get_stylesheets(
+        self, entry: ManifestEntry
+    ) -> Generator[StyleSheetTag, None, None]:
         for css_file in entry.css_list:
-            css_static_url = static(css_file)
-            yield StyleSheetTag(src=css_static_url)
+            yield StyleSheetTag(src=static(css_file))
+
         for imported_entry in entry.import_list:
             yield from self.__get_stylesheets(
                 entry=self.entries[imported_entry]
@@ -102,18 +111,25 @@ class ViteAssetResolver:
         if settings.DEBUG:
             resolver = ViteDevServerAssetResolver()
         else:
-            if cache.has_key(CACHE_KEY_VITE_MANIFEST): 
-                manifest_data = cast(dict[str, ManifestEntry], cache.get(CACHE_KEY_VITE_MANIFEST))
+            if cache.has_key(CACHE_KEY_VITE_MANIFEST):
+                manifest_data = cast(
+                    dict[str, ManifestEntry],
+                    cache.get(CACHE_KEY_VITE_MANIFEST),
+                )
             else:
                 manifest_data = get_vite_manifest()
-                cache.set(CACHE_KEY_VITE_MANIFEST, manifest_data, 60 * 60 * 24 * 1000)
-        
+                cache.set(
+                    CACHE_KEY_VITE_MANIFEST, manifest_data, 60 * 60 * 24 * 1000
+                )
+
             resolver = ManifestAssetResolver(manifest_data)
         yield from resolver.get_imports(file=file)
 
+
 def get_vite_manifest() -> dict[str, ManifestEntry]:
     entries: dict[str, ManifestEntry] = {}
-    manifest_content = _get_manifest_data()
+    manifest_path = Path(settings.VITE_OUTPUT_DIR) / ".vite" / "manifest.json"
+    manifest_content = manifest_path.read_text()
     manifest: dict[str, Any] = json.loads(manifest_content)
     for file, entry in manifest.items():
         entries[file] = ManifestEntry(
@@ -128,11 +144,3 @@ def get_vite_manifest() -> dict[str, ManifestEntry]:
         )
 
     return entries
-
-
-def _get_manifest_data() -> str:
-    output_dir = settings.VITE_OUTPUT_DIR
-    manifest_path = Path(output_dir) / ".vite" / "manifest.json"
-
-    with manifest_path.open("r") as manifest_fd:
-        return manifest_fd.read()
