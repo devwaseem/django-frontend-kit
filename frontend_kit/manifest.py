@@ -1,13 +1,11 @@
 import json
 from abc import ABC, abstractmethod
+from functools import cache
 from pathlib import Path
 from typing import Any, Generator, Hashable, NamedTuple, Self, cast
 
 from django.conf import settings
-from django.core.cache import cache
 from django.templatetags.static import static
-
-from frontend_kit.keys import CACHE_KEY_VITE_MANIFEST
 
 
 class ManifestEntry(NamedTuple):
@@ -111,21 +109,11 @@ class ViteAssetResolver:
         if settings.DEBUG:
             resolver = ViteDevServerAssetResolver()
         else:
-            if cache.has_key(CACHE_KEY_VITE_MANIFEST):
-                manifest_data = cast(
-                    dict[str, ManifestEntry],
-                    cache.get(CACHE_KEY_VITE_MANIFEST),
-                )
-            else:
-                manifest_data = get_vite_manifest()
-                cache.set(
-                    CACHE_KEY_VITE_MANIFEST, manifest_data, 60 * 60 * 24 * 1000
-                )
-
-            resolver = ManifestAssetResolver(manifest_data)
+            resolver = ManifestAssetResolver(get_vite_manifest())
         yield from resolver.get_imports(file=file)
 
 
+@cache
 def get_vite_manifest() -> dict[str, ManifestEntry]:
     entries: dict[str, ManifestEntry] = {}
     manifest_path = Path(settings.VITE_OUTPUT_DIR) / ".vite" / "manifest.json"
