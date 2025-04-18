@@ -1,0 +1,2 @@
+alert("Django frontend works");
+

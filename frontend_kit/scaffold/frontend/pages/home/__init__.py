@@ -1,10 +1,8 @@
-from typing import NamedTuple
+import random
 
-from frontend_kit.page import Page
-
-
-class HomePageProps(NamedTuple): ...
+from frontend.layouts.base import BaseLayout
 
 
-class HomePage(Page):
-    props: HomePageProps
+class HomePage(BaseLayout):
+    def lucky_number(self) -> int:
+        return random.randint(1, 100)
