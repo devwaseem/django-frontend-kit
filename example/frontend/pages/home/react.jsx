@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { createRoot } from "react-dom/client";
+import { createRoot } from 'react-dom/client';
 
 export default function App() {
   const [index, setIndex] = useState(0);
@@ -11,7 +11,7 @@ export default function App() {
   return (
     <div className="p-6 bg-gray-50 border border-gray-200 rounded-lg flex flex-col gap-4">
       <div>This is rendered using React</div>
-      <div>Current value: {index}</div>
+      <div>Current values: {index}</div>
       <button
         type="button"
         onClick={handleClick}
@@ -23,9 +23,9 @@ export default function App() {
   );
 }
 
-const root = createRoot(document.getElementById("react-body"));
+const root = createRoot(document.getElementById('react-app'));
 root.render(<App />);
 
 if (import.meta.hot) {
-  import.meta.hot.accept();
+    import.meta.hot.accept();
 }

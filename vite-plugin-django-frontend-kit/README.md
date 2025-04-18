@@ -16,7 +16,7 @@ import VitePluginDjangoFrontendKit from "vite-plugin-django-frontend-kit";
 
 export default defineConfig({
   plugins: [
-    VitePluginDjangoFrontendKit(),
+    DjangoFrontendKit(),
   ],
 });
 ```
@@ -26,6 +26,5 @@ export default defineConfig({
 ```js
 VitePluginDjangoFrontendKit({
   frontendDirs: ["./frontend"],
-  glob_pattern: "/**/*.{js,ts}",
 });
 ```

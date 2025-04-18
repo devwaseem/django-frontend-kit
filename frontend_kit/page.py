@@ -1,7 +1,8 @@
+from __future__ import annotations
+
 import sys
-from functools import cached_property
 from pathlib import Path
-from typing import Generator, Generic, Iterable, NamedTuple, TypeVar, cast
+from typing import Any, Generator, Iterable
 
 from django.conf import settings
 from django.http import HttpRequest, HttpResponse
@@ -16,124 +17,126 @@ from frontend_kit.manifest import (
     ViteAssetResolver,
 )
 
-Props = TypeVar("Props", bound=NamedTuple)
+
+class PageMeta(type):
+    def __init__(
+        cls,
+        name: str,
+        bases: tuple[type, ...],
+        namespace: dict[str, Any],
+    ) -> None:
+        super().__init__(name, bases, namespace)
+
+        if cls.__name__ == "Page":
+            return  # Skip base
+
+        cls._assets: dict[str, list[AssetTag]] = {
+            "stylesheets": [],
+            "preloads": [],
+            "head": [],
+            "body": [],
+        }
+
+        # Load files from Meta
+        head_files = [
+            "entry.head.js",
+            "entry.head.ts",
+        ]
+        body_files = [
+            "entry.js",
+            "entry.ts",
+        ]
+
+        if settings.DEBUG and hasattr(settings, "VITE_DEV_SERVER_URL"):
+            cls._assets["head"].append(
+                ModuleTag(src=f"{settings.VITE_DEV_SERVER_URL}@vite/client")
+            )
+
+        seen: set[AssetTag] = set()
+        for files, section in ((head_files, "head"), (body_files, "body")):
+            for tag in cls._resolve_imports(files):  # type: ignore
+                if tag in seen:
+                    continue
+                if isinstance(tag, StyleSheetTag):
+                    cls._assets["stylesheets"].append(tag)
+                elif isinstance(tag, ModulePreloadTag):
+                    cls._assets["preloads"].append(tag)
+                elif isinstance(tag, ModuleTag):
+                    cls._assets[section].append(tag)
+                seen.add(tag)
 
 
-class Page(Generic[Props]):
-    """
-    Page class for linking JS Files and Django.
+class Page(metaclass=PageMeta):
+    _assets: dict[str, list[AssetTag]] = {}
 
-    This class is used to define the page structure and imports.
-    It is responsible for importing the necessary JavaScript and CSS files
-    for the page.
-    """
+    def __init__(self) -> None:
+        self.stylesheets: list[StyleSheetTag] = []
+        self.preload_imports: list[ModulePreloadTag] = []
+        self.head_imports: list[ModuleTag] = []
+        self.body_imports: list[ModuleTag] = []
+        self._collect_inherited_assets()
 
-    stylesheets: list[StyleSheetTag]
-    preload_imports: list[ModulePreloadTag]
-    head_imports: list[ModuleTag]
-    pre_body_imports: list[ModuleTag]
-    post_body_imports: list[ModuleTag]
+    def _collect_inherited_assets(self) -> None:
+        collected: dict[str, list[AssetTag]] = {
+            "stylesheets": [],
+            "preloads": [],
+            "head": [],
+            "body": [],
+        }
+        seen: set[AssetTag] = set()
 
-    head_js_files: Iterable[str] = [
-        "index.js",
-        "index.ts",
-    ]
-    pre_body_js_files: Iterable[str | Path] = [
-        "index.pre.body.js",
-        "index.pre.body.ts",
-    ]
-    post_body_js_files: Iterable[str | Path] = [
-        "index.post.body.js",
-        "index.post.body.ts",
-    ]
+        for cls in self.__class__.__mro__:
+            if not hasattr(cls, "_assets"):
+                continue
+            for key, values in cls._assets.items():
+                for tag in values:
+                    if tag not in seen:
+                        collected[key].append(tag)
+                        seen.add(tag)
 
-    def __init__(self, props: Props) -> None:
-        self.props = props
-        self.stylesheets = []
-        self.preload_imports = []
-        self.head_imports = []
-        self.pre_body_imports = []
-        self.post_body_imports = []
+        self.stylesheets = collected["stylesheets"]  # type: ignore
+        self.preload_imports = collected["preloads"]  # type: ignore
+        self.head_imports = collected["head"]  # type: ignore
+        self.body_imports = collected["body"]  # type: ignore
 
-        self.__setup_imports()
+    def render(self, *, request: HttpRequest) -> str:
+        template = loader.get_template(
+            str(self._get_base_path() / "index.html")
+        )
+        return str(template.render({"page": self}, request=request))
 
-    @cached_property
-    def _base_path(self) -> Path:
-        return Path(self.__get_file_path()).parent
+    def as_response(self, *, request: HttpRequest) -> HttpResponse:
+        return HttpResponse(self.render(request=request).encode())
 
-    def __get_js_manifest_name(self, file_path: Path) -> str | None:
+    @classmethod
+    def _resolve_imports(
+        cls, files: Iterable[str | Path]
+    ) -> Generator[AssetTag, None, None]:
+        base = cls._get_base_path()
+        for file in files:
+            path = base / file if isinstance(file, str) else file
+            if not path.exists():
+                continue
+            if name := cls._get_js_manifest_name(path):
+                yield from ViteAssetResolver.get_imports(file=name)
+
+    @classmethod
+    def _get_base_path(cls) -> Path:
+        return Path(cls._get_file_path()).parent
+
+    @classmethod
+    def _get_file_path(cls) -> str:
+        mod = sys.modules[cls.__module__]
+        path = getattr(mod, "__file__", None)
+        if not path:
+            raise RuntimeError(f"Can't determine file path for {cls}")
+        return str(path)
+
+    @classmethod
+    def _get_js_manifest_name(cls, file_path: Path) -> str | None:
         frontend_dir = utils.get_frontend_dir_from_settings()
         if not file_path.exists():
             return None
         return str(file_path.relative_to(Path(frontend_dir).parent)).lstrip(
             "/"
         )
-
-    def __setup_imports(self) -> None:
-        imported_modules = set()
-        if settings.DEBUG:
-            self.head_imports.append(
-                ModuleTag(src=f"{settings.VITE_DEV_SERVER_URL}@vite/client")
-            )
-
-        files_imports_list = (
-            (self.head_js_files, self.head_imports),
-            (self.pre_body_js_files, self.pre_body_imports),
-            (self.post_body_js_files, self.post_body_imports),
-        )
-
-        for files, imports in files_imports_list:
-            for import_tag in self.__get_imports(files=files):
-                if import_tag in imported_modules:
-                    continue
-
-                if isinstance(import_tag, ModulePreloadTag):
-                    self.preload_imports.append(import_tag)
-                elif isinstance(import_tag, StyleSheetTag):
-                    self.stylesheets.append(import_tag)
-                elif isinstance(import_tag, ModuleTag):
-                    imports.append(import_tag)
-                imported_modules.add(import_tag)
-
-    def get_imports(
-        self, files: Iterable[str | Path]
-    ) -> Generator[AssetTag, None, None]:
-        yield from self.__get_imports(
-            files=files, ignore_not_found_files=False
-        )
-
-    def __get_imports(
-        self,
-        *,
-        files: Iterable[str | Path],
-        ignore_not_found_files: bool = True,
-    ) -> Generator[AssetTag, None, None]:
-        for file in files:
-            file_path = (
-                self._base_path / file if isinstance(file, str) else file
-            )
-            if not file_path.exists() and not ignore_not_found_files:
-                raise FileNotFoundError(f"File {file_path} does not exist")
-            if name := self.__get_js_manifest_name(file_path=file_path):
-                yield from ViteAssetResolver.get_imports(file=name)
-
-    def render(self, *, request: HttpRequest) -> str:
-        template = loader.get_template(str(self._base_path / "index.html"))
-        return cast(
-            str,
-            template.render(
-                {
-                    "page": self,
-                    "props": self.props,
-                },
-                request=request,
-            ),
-        )
-
-    def as_response(self, *, request: HttpRequest) -> HttpResponse:
-        return HttpResponse(self.render(request=request).encode())
-
-    def __get_file_path(self) -> str:
-        if current_file := sys.modules[self.__module__].__file__:
-            return current_file
-        raise RuntimeError("Could not find current file from modules")

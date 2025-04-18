@@ -45,6 +45,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -55,7 +56,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "example.urls"
 
-VITE_OUTPUT_DIR = os.environ.get("VITE_OUTPUT_DIR", "./dist")
+VITE_OUTPUT_DIR = BASE_DIR / os.environ.get("VITE_OUTPUT_DIR", "dist")
 DJFK_FRONTEND_DIR = BASE_DIR / "frontend"
 
 TEMPLATES = [
@@ -127,11 +128,15 @@ VITE_DEV_SERVER_URL = "http://localhost:5173/"
 
 
 STATIC_ROOT = "static"
-STATICFILES_DIRS = [
-    VITE_OUTPUT_DIR
-]
+STATICFILES_DIRS = [VITE_OUTPUT_DIR]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}

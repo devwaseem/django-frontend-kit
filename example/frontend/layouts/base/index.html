@@ -12,9 +12,8 @@
         {% fk_load page.head_imports %}
     </head>
     <body>
-        {% fk_load page.pre_body_imports %}
         {% block body %}
         {% endblock body %}
-        {% fk_load page.post_body_imports %}
+        {% fk_load page.body_imports %}
     </body>
 </html>

@@ -116,7 +116,21 @@ class ViteAssetResolver:
 @cache
 def get_vite_manifest() -> dict[str, ManifestEntry]:
     entries: dict[str, ManifestEntry] = {}
-    manifest_path = Path(settings.VITE_OUTPUT_DIR) / ".vite" / "manifest.json"
+    if not hasattr(settings, "VITE_OUTPUT_DIR"):
+        raise RuntimeError(
+            "VITE_OUTPUT_DIR is not set in settings.py, please set it to the "
+            "output directory of your Vite build"
+        )
+
+    vite_output_dir = Path(settings.VITE_OUTPUT_DIR)
+    if not vite_output_dir.exists():
+        raise RuntimeError(
+            f"{settings.VITE_OUTPUT_DIR} does not exist, "
+            "please check VITE_OUTPUT_DIR settings to ensure you "
+            "pass correct dir"
+        )
+
+    manifest_path = vite_output_dir / ".vite" / "manifest.json"
     manifest_content = manifest_path.read_text()
     manifest: dict[str, Any] = json.loads(manifest_content)
     for file, entry in manifest.items():
