@@ -100,11 +100,15 @@ class Page(metaclass=PageMeta):
         self.body_imports = collected["body"]  # type: ignore
 
     def get_template(self) -> str:
-        return loader.get_template(str(self._get_base_path() / "index.html"))
+        return str(self._get_base_path() / "index.html")
 
     def render(self, *, request: HttpRequest) -> str:
         template = self.get_template()
-        return str(template.render({"page": self}, request=request))
+        return str(
+            loader.get_template(template).render(
+                {"page": self}, request=request
+            )
+        )
 
     def as_response(self, *, request: HttpRequest) -> HttpResponse:
         return HttpResponse(self.render(request=request).encode())
