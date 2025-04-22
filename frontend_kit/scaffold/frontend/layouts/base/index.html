@@ -7,13 +7,13 @@
         <meta name="description" content="" />
         <meta name="keywords" content="" />
         <title>Home</title>
-        {% fk_load page.stylesheets %}
-        {% fk_load page.preload_imports %}
-        {% fk_load page.head_imports %}
+        {% fk_preloads %}
+        {% fk_stylesheets %}
+        {% fk_head_scripts %}
     </head>
     <body>
         {% block body %}
         {% endblock body %}
-        {% fk_load page.body_imports %}
+        {% fk_body_scripts %}
     </body>
 </html>
