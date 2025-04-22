@@ -65,10 +65,11 @@ wheels = [
 
 [[package]]
 name = "django-frontend-kit"
-version = "0.1.1"
+version = "0.2.2"
 source = { editable = "." }
 dependencies = [
     { name = "django" },
+    { name = "django-render-block" },
 ]
 
 [package.dev-dependencies]
@@ -80,7 +81,10 @@ dev = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "django", specifier = ">=3.2" }]
+requires-dist = [
+    { name = "django", specifier = ">=3.2" },
+    { name = "django-render-block", specifier = ">=0.10" },
+]
 
 [package.metadata.requires-dev]
 dev = [
@@ -88,6 +92,18 @@ dev = [
     { name = "djlint", specifier = ">=1.36.4,<2" },
     { name = "mypy", specifier = ">=1.13.0,<2" },
     { name = "ruff", specifier = ">=0.9.10,<0.10" },
+]
+
+[[package]]
+name = "django-render-block"
+version = "0.10"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "django" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/5c/c1/4422e64e9cf25dc5025625605706de5fe44fcef87253fe0067f526bd0d7b/django_render_block-0.10.tar.gz", hash = "sha256:23fbc9cfed17aac47e936e65f0c29ae186765a41234cdc8dbf88d4a9377fdd76", size = 10008 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/93/61/f4c9599d1a3f3aa88692c97f7ad22040373405fe58c5bf191b52ff637d8c/django_render_block-0.10-py3-none-any.whl", hash = "sha256:4deeec70a360aa90385443aeae1213ffb2acbfe2b5fb09d4afe47e75a29240c3", size = 8958 },
 ]
 
 [[package]]

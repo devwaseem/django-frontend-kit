@@ -1,6 +1,6 @@
 [project]
 name = "django-frontend-kit"
-version = "0.2.2"
+version = "0.2.3"
 description = "Opinionated Django frontend scaffolder using ViteJS"
 authors = [{ name = "Waseem Akram", email = "waseem07799@gmail.com" }]
 requires-python = ">=3.9"
@@ -18,7 +18,7 @@ classifiers = [
     "Framework :: Django :: 5.1",
     "License :: OSI Approved :: MIT License",
 ]
-dependencies = ["Django>=3.2"]
+dependencies = ["Django>=4.2", "django-render-block>=0.10"]
 
 [project.urls]
 Repository = "https://github.com/devwaseem/django-frontend-kit"

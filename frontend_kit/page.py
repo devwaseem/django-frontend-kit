@@ -6,7 +6,8 @@ from typing import Any, Generator, Iterable
 
 from django.conf import settings
 from django.http import HttpRequest, HttpResponse
-from django.template import loader
+from django.template import RequestContext, loader
+from render_block import render_block_to_string
 
 from frontend_kit import utils
 from frontend_kit.manifest import (
@@ -99,19 +100,42 @@ class Page(metaclass=PageMeta):
         self.head_imports = collected["head"]  # type: ignore
         self.body_imports = collected["body"]  # type: ignore
 
-    def get_template(self) -> str:
+    def get_template_name(self) -> str:
         return str(self._get_base_path() / "index.html")
 
+    def get_context(self) -> dict[str, Any]:
+        return {"page": self}
+
     def render(self, *, request: HttpRequest) -> str:
-        template = self.get_template()
+        template_name = self.get_template_name()
         return str(
-            loader.get_template(template).render(
-                {"page": self}, request=request
+            loader.get_template(template_name=template_name).render(
+                context=self.get_context(),
+                request=request,
             )
         )
 
-    def as_response(self, *, request: HttpRequest) -> HttpResponse:
-        return HttpResponse(self.render(request=request).encode())
+    def render_block(self, *, block_name: str, request: HttpRequest) -> str:
+        template_name = self.get_template_name()
+        context = RequestContext(request, self.get_context())
+        return render_block_to_string(
+            template_name=template_name,
+            block_name=block_name,
+            context=context,
+            request=request,
+        )
+
+    def as_response(
+        self,
+        *,
+        request: HttpRequest,
+        block_name: str = "",
+    ) -> HttpResponse:
+        if block_name:
+            html = self.render_block(request=request, block_name=block_name)
+        else:
+            html = self.render(request=request)
+        return HttpResponse(content=html.encode())
 
     @classmethod
     def _resolve_imports(
