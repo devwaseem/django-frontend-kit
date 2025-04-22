@@ -1,18 +1,14 @@
 [project]
 name = "django-frontend-example"
-version = "0.1.0"
+version = "0.1"
 description = ""
 authors = [{ name = "Waseem Akram", email = "waseem07799@gmail.com" }]
 requires-python = "==3.13.0"
 readme = "README.md"
 dependencies = [
     "Django>=5.1.2,<6",
- "django-frontend-kit",
  "whitenoise>=6.9.0",
 ]
-
-[tool.uv.sources]
-django-frontend-kit = { path = "../" }
 
 [dependency-groups]
 dev = ["djlint>=1.35.4,<2", "mypy>=1.13.0,<2"]

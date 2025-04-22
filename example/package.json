@@ -13,7 +13,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@iamwaseem99/vite-plugin-django-frontend-kit": "^1.0.0",
+    "@iamwaseem99/vite-plugin-django-frontend-kit": "^1.1.1",
     "@tailwindcss/vite": "^4.0.12",
     "@vitejs/plugin-react": "^4.3.4",
     "@vitejs/plugin-vue": "^5.2.1",

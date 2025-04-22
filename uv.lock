@@ -65,7 +65,7 @@ wheels = [
 
 [[package]]
 name = "django-frontend-kit"
-version = "0.2.2"
+version = "0.2.3"
 source = { editable = "." }
 dependencies = [
     { name = "django" },
@@ -82,7 +82,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "django", specifier = ">=3.2" },
+    { name = "django", specifier = ">=4.2" },
     { name = "django-render-block", specifier = ">=0.10" },
 ]
 
