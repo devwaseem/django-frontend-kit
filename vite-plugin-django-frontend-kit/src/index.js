@@ -2,11 +2,17 @@ import { glob } from 'glob';
 import path from 'path';
 
 async function generateRollupInput(frontendDirs) {
-    const glob_pattern = '/**/entry{,.head}.{js,ts}';
+    const glob_patterns = [
+        '/**/entry.{js,ts}',
+        '/**/entry.head.{js,ts}',
+        '/**/*.entry.{js,ts}',
+    ];
     let rollupInput = {};
     for (let dir of frontendDirs) {
         dir = path.resolve(dir);
-        let resolved_files = await glob(dir + glob_pattern);
+        let resolved_files = await glob(
+            glob_patterns.map((pattern) => dir + pattern)
+        );
         for (let file of resolved_files) {
             let key = path
                 .resolve(file)
