@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
-from typing import Any, Generator, Iterable
+from typing import Any, Generator
 
 from django.conf import settings
 from django.http import HttpRequest, HttpResponse
@@ -19,8 +19,13 @@ from frontend_kit.manifest import (
 )
 
 
+class FileNotLoadedFromViteError(Exception):
+    def __init__(self, file_name: str) -> None:
+        super().__init__(f"{file_name} was not included in Vite manifest")
+
+
 class PageMeta(type):
-    def __init__(
+    def __init__(  # noqa: C901
         cls,
         name: str,
         bases: tuple[type, ...],
@@ -55,16 +60,22 @@ class PageMeta(type):
 
         seen: set[AssetTag] = set()
         for files, section in ((head_files, "head"), (body_files, "body")):
-            for tag in cls._resolve_imports(files):  # type: ignore
-                if tag in seen:
+            for file_name in files:
+                try:
+                    tags_generator = cls.resolve_import(file_name=file_name)  # type: ignore
+                except FileNotFoundError:
+                    # ignore if any file is not found
                     continue
-                if isinstance(tag, StyleSheetTag):
-                    cls._assets["stylesheets"].append(tag)
-                elif isinstance(tag, ModulePreloadTag):
-                    cls._assets["preloads"].append(tag)
-                elif isinstance(tag, ModuleTag):
-                    cls._assets[section].append(tag)
-                seen.add(tag)
+                for tag in tags_generator:
+                    if tag in seen:
+                        continue
+                    if isinstance(tag, StyleSheetTag):
+                        cls._assets["stylesheets"].append(tag)
+                    elif isinstance(tag, ModulePreloadTag):
+                        cls._assets["preloads"].append(tag)
+                    elif isinstance(tag, ModuleTag):
+                        cls._assets[section].append(tag)
+                    seen.add(tag)
 
 
 class Page(metaclass=PageMeta):
@@ -138,16 +149,16 @@ class Page(metaclass=PageMeta):
         return HttpResponse(content=html.encode())
 
     @classmethod
-    def _resolve_imports(
-        cls, files: Iterable[str | Path]
+    def resolve_import(
+        cls, *, file_name: str
     ) -> Generator[AssetTag, None, None]:
         base = cls._get_base_path()
-        for file in files:
-            path = base / file if isinstance(file, str) else file
-            if not path.exists():
-                continue
-            if name := cls._get_js_manifest_name(path):
-                yield from ViteAssetResolver.get_imports(file=name)
+        path = base / file_name if isinstance(file_name, str) else file_name
+        if not path.exists():
+            raise FileNotFoundError(f"file {file_name} not found")
+        if name := cls._get_js_manifest_name(path):
+            return ViteAssetResolver.get_imports(file=name)
+        raise FileNotLoadedFromViteError(file_name=file_name)
 
     @classmethod
     def _get_base_path(cls) -> Path:
