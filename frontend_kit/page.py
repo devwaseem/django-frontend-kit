@@ -111,8 +111,13 @@ class Page(metaclass=PageMeta):
         self.head_imports = collected["head"]  # type: ignore
         self.body_imports = collected["body"]  # type: ignore
 
-    def get_template_name(self) -> str:
-        return str(self._get_base_path() / "index.html")
+    @classmethod
+    def get_template_name(cls) -> str:
+        return cls.get_relative_template_name("index.html")
+
+    @classmethod
+    def get_relative_template_name(cls, name: str) -> str:
+        return str(cls._get_base_path() / name)
 
     def get_context(self) -> dict[str, Any]:
         return {"page": self}
