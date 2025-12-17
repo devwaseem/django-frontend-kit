@@ -1,6 +1,6 @@
 [project]
 name = "django-frontend-kit"
-version = "0.4.1"
+version = "0.4.2"
 description = "Opinionated Django frontend scaffolder using ViteJS"
 authors = [{ name = "Waseem Akram", email = "waseem07799@gmail.com" }]
 requires-python = ">=3.9"
@@ -33,10 +33,11 @@ dev = [
 ]
 
 [tool.hatch.build.targets.sdist]
-include = ["frontend_kit"]
+include = ["frontend_kit", "frontend_kit/py.typed"]
 
 [tool.hatch.build.targets.wheel]
-include = ["frontend_kit"]
+include = ["frontend_kit", "frontend_kit/py.typed"]
+package-data = { "frontend_kit" = ["py.typed"] }
 
 [build-system]
 requires = ["hatchling"]
