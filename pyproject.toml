@@ -1,6 +1,6 @@
 [project]
 name = "django-frontend-kit"
-version = "0.4.0"
+version = "0.4.1"
 description = "Opinionated Django frontend scaffolder using ViteJS"
 authors = [{ name = "Waseem Akram", email = "waseem07799@gmail.com" }]
 requires-python = ">=3.9"
@@ -26,9 +26,10 @@ Repository = "https://github.com/devwaseem/django-frontend-kit"
 [dependency-groups]
 dev = [
     "mypy>=1.13.0,<2",
-    "django-stubs>=5.1.1,<6",
     "ruff>=0.9.10,<0.10",
     "djlint>=1.36.4,<2",
+    "django-stubs[compatible-mypy]>=5.1",
+    "django-stubs-ext>=5.1.1",
 ]
 
 [tool.hatch.build.targets.sdist]
@@ -56,12 +57,15 @@ reportUnusedParameter = false
 
 # https://mypy.readthedocs.io/en/stable/config_file.html
 
-python_version = "3.13.0"
+python_version = "3.13"
 mypy_path = "./frontend_kit"
 
 
-plugins = []
-exclude = ['manage.py']
+plugins = ["mypy_django_plugin.main"]
+exclude = '''(?x)(
+    ^manage\.py$ |
+    frontend_kit/scaffold/.*\.py$
+)'''
 disable_error_code = ['import-untyped']
 
 allow_redefinition = false
@@ -92,6 +96,12 @@ warn_return_any = true
 warn_unreachable = true
 warn_unused_configs = true
 warn_unused_ignores = true
+
+[tool.mypy_django_plugin]
+ignore_missing_model_attributes = true
+
+[tool.django-stubs]
+django_settings_module = "example.example.settings"
 
 [tool.ruff]
 

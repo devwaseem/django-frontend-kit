@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
-from typing import Any, Generator
+from typing import Any, Generator, cast
 
 from django.conf import settings
 from django.http import HttpRequest, HttpResponse
@@ -134,11 +134,14 @@ class Page(metaclass=PageMeta):
     def render_block(self, *, block_name: str, request: HttpRequest) -> str:
         template_name = self.get_template_name()
         context = RequestContext(request, self.get_context())
-        return render_block_to_string(
-            template_name=template_name,
-            block_name=block_name,
-            context=context,
-            request=request,
+        return cast(
+            str,
+            render_block_to_string(
+                template_name=template_name,
+                block_name=block_name,
+                context=context,
+                request=request,
+            ),
         )
 
     def as_response(
