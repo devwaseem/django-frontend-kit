@@ -122,8 +122,17 @@ class Page(metaclass=PageMeta):
     def get_context(self) -> dict[str, Any]:
         return {"page": self}
 
-    def render(self, *, request: HttpRequest) -> str:
-        template_name = self.get_template_name()
+    def render(
+        self,
+        *,
+        request: HttpRequest,
+        relative_template_name: str = "",
+    ) -> str:
+        template_name = (
+            self.get_template_name()
+            if not relative_template_name
+            else self.get_relative_template_name(name=relative_template_name)
+        )
         return str(
             loader.get_template(template_name=template_name).render(
                 context=self.get_context(),
@@ -131,8 +140,18 @@ class Page(metaclass=PageMeta):
             )
         )
 
-    def render_block(self, *, block_name: str, request: HttpRequest) -> str:
-        template_name = self.get_template_name()
+    def render_block(
+        self,
+        *,
+        block_name: str,
+        request: HttpRequest,
+        relative_template_name: str = "",
+    ) -> str:
+        template_name = (
+            self.get_template_name()
+            if not relative_template_name
+            else self.get_relative_template_name(name=relative_template_name)
+        )
         context = RequestContext(request, self.get_context())
         return cast(
             str,
