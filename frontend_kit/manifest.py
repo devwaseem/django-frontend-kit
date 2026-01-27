@@ -106,7 +106,9 @@ class ViteAssetResolver:
     @staticmethod
     def get_imports(file: str) -> Generator[AssetTag, None, None]:
         resolver: AssetResolver
-        if settings.DEBUG:
+        if hasattr(settings, "DJFK_DEV_ENV") and getattr(
+            settings, "DJFK_DEV_ENV", True
+        ):
             resolver = ViteDevServerAssetResolver()
         else:
             resolver = ManifestAssetResolver(get_vite_manifest())
