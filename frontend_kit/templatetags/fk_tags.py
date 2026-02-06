@@ -22,7 +22,7 @@ def _get_csp_nonce(context: template.Context) -> str | None:
     request = context.get("request")
     if not request:
         return None
-    return getattr(request, "csp_nonce", None)
+    return getattr(request, "_csp_nonce", None)
 
 
 @register.simple_tag(takes_context=True)
