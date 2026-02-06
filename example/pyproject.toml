@@ -6,8 +6,8 @@ authors = [{ name = "Waseem Akram", email = "waseem07799@gmail.com" }]
 requires-python = "==3.13.0"
 readme = "README.md"
 dependencies = [
-    "Django>=5.1.2,<6",
- "whitenoise>=6.9.0",
+    "Django>=6,<7",
+    "whitenoise>=6.9.0",
 ]
 
 [dependency-groups]
