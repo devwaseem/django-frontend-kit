@@ -2,7 +2,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/django-frontend-kit.svg)](https://pypi.org/project/django-frontend-kit/)
 [![Python](https://img.shields.io/pypi/pyversions/django-frontend-kit.svg)](https://pypi.org/project/django-frontend-kit/)
-[![Django](https://img.shields.io/badge/Django-4.2%2B-0C4B33)](https://www.djangoproject.com/)
+[![Django](https://img.shields.io/badge/Django-4.2%2B%20%28incl%206.0%29-0C4B33)](https://www.djangoproject.com/)
 [![License](https://img.shields.io/pypi/l/django-frontend-kit.svg)](LICENSE)
 
 An opinionated way to structure and ship modern frontend assets in Django using Vite. It provides:
@@ -29,7 +29,7 @@ Most Django + Vite integrations solve “include the scripts”. Django Frontend
 ## Requirements
 
 - Python `>= 3.9`
-- Django `>= 4.2`
+- Django `>= 4.2` (including 6.0)
 - Node.js + npm/pnpm/yarn (for Vite)
 
 ## Installation
@@ -100,6 +100,7 @@ At minimum:
 DJFK_FRONTEND_DIR = BASE_DIR / "frontend"
 VITE_OUTPUT_DIR = BASE_DIR / "dist"
 VITE_DEV_SERVER_URL = "http://localhost:5173/"
+DJFK_DEV_ENV = True
 
 TEMPLATES = [
     {
@@ -115,6 +116,7 @@ Notes:
 
 - `DJFK_FRONTEND_DIR` must exist on disk (the scaffold command creates it).
 - `VITE_OUTPUT_DIR` must match your Vite `build.outDir` (see `vite.config.js`).
+- `DJFK_DEV_ENV` controls dev behavior. When `True`, assets are served from the Vite dev server; when `False`, assets are resolved from the manifest.
 
 ### 5) Run in development
 
@@ -130,11 +132,20 @@ python manage.py runserver
 
 ## How it works
 
-- In `DEBUG=True`, asset tags point to the Vite dev server and HMR works as usual.
-- In `DEBUG=False`, Django Frontend Kit reads `VITE_OUTPUT_DIR/.vite/manifest.json` and emits:
+- When `DJFK_DEV_ENV=True`, asset tags point to the Vite dev server and HMR works as usual.
+- When `DJFK_DEV_ENV=False`, Django Frontend Kit reads `VITE_OUTPUT_DIR/.vite/manifest.json` and emits:
   - `<link rel="modulepreload" ...>` for imported chunks
   - `<link rel="stylesheet" ...>` for CSS
   - `<script type="module" ...></script>` for the entry module
+
+### CSP nonce behavior (dev only)
+
+If `DJFK_DEV_ENV=True` and `request.csp_nonce` is available in the template context, Django Frontend Kit (Django 6+ compatible) adds a `nonce` attribute to:
+
+- `<script type="module">`
+- `<link rel="stylesheet">`
+
+No nonce is added when `DJFK_DEV_ENV=False` (production/manifest mode), and `modulepreload` tags never receive a nonce.
 
 ## Project layout
 

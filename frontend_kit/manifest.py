@@ -29,7 +29,7 @@ class AssetTag(ABC, Hashable):
         self.src: str = src
 
     @abstractmethod
-    def render(self) -> str:
+    def render(self, nonce: str | None = None) -> str:
         raise NotImplementedError
 
     def __hash__(self) -> int:
@@ -46,18 +46,22 @@ class AssetTag(ABC, Hashable):
 
 
 class ModulePreloadTag(AssetTag):
-    def render(self) -> str:
+    def render(self, nonce: str | None = None) -> str:
         return f'<link rel="modulepreload" href="{self.src}" />'
 
 
 class ModuleTag(AssetTag):
-    def render(self) -> str:
-        return f'<script type="module" src="{self.src}"></script>'
+    def render(self, nonce: str | None = None) -> str:
+        nonce_attr = f' nonce="{nonce}"' if nonce else ""
+        return (
+            f'<script type="module" src="{self.src}"{nonce_attr}></script>'
+        )
 
 
 class StyleSheetTag(AssetTag):
-    def render(self) -> str:
-        return f'<link rel="stylesheet" href="{self.src}">'
+    def render(self, nonce: str | None = None) -> str:
+        nonce_attr = f' nonce="{nonce}"' if nonce else ""
+        return f'<link rel="stylesheet" href="{self.src}"{nonce_attr}>'
 
 
 class AssetResolver(ABC):
